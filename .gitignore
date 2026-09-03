@@ -1,0 +1,21 @@
+# Virtualno okruzenje (regenerira se: python -m venv .venv && pip install -r requirements.txt)
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Izlaz skeniranja (generira se pokretanjem okvira)
+rezultati/
+
+# Interna specifikacija / prompt (nije dio koda okvira)
+PROMPT_CLAUDE_CODE.md
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+Thumbs.db
+
+# Interne handoff biljeske (nisu dio okvira)
+HANDOFF.md

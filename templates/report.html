@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Izvještaj hibridnog okvira za testiranje sigurnosti</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+         background: #ffffff; color: #1a1a1a; margin: 0; padding: 2rem; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.2rem; }
+  h2 { font-size: 1.2rem; margin-top: 2rem; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.3rem; }
+  .meta, .summary { background: #f7f8fa; border: 1px solid #e0e0e0; border-radius: 6px;
+                    padding: 1rem 1.2rem; margin-top: 1rem; }
+  .meta div, .summary div { margin: 0.15rem 0; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid #e6e6e6;
+           vertical-align: top; }
+  th { background: #2c3e50; color: #fff; position: sticky; top: 0; }
+  tr:nth-child(even) td { background: #f4f6f8; }
+  .sev { font-weight: 600; padding: 0.1rem 0.5rem; border-radius: 4px; color: #fff;
+         display: inline-block; white-space: nowrap; }
+  .sev-kritično { background: #7b241c; }
+  .sev-visoko { background: #c0392b; }
+  .sev-srednje { background: #e67e22; }
+  .sev-nisko { background: #f1c40f; color: #333; }
+  .sev-informativno { background: #7f8c8d; }
+  .badge { background: #dfe6ee; border-radius: 4px; padding: 0.05rem 0.4rem; margin-right: 0.2rem;
+           font-size: 0.8rem; white-space: nowrap; display: inline-block; }
+  .korel { color: #148f47; font-weight: 600; }
+  code { background: #eee; padding: 0.05rem 0.3rem; border-radius: 3px; word-break: break-all; }
+  .wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+  <h1>Izvještaj hibridnog okvira za testiranje sigurnosti</h1>
+  <div class="meta">
+    <div><strong>Meta:</strong> {{ target }}</div>
+    <div><strong>Vrijeme generiranja:</strong> {{ timestamp }}</div>
+    <div><strong>Korišteni alati:</strong> {{ tools_used | join(", ") }}</div>
+    <div><strong>Trajanje izvođenja:</strong> {{ execution_time }} s</div>
+  </div>
+
+  <h2>Sažetak</h2>
+  <div class="summary">
+    <div><strong>Ukupno nalaza (sirovo):</strong> {{ total_raw }}</div>
+    <div><strong>Jedinstvenih nalaza (nakon deduplikacije):</strong> {{ total_dedup }}</div>
+    <div><strong>Koreliranih nalaza (≥2 alata):</strong> {{ korelirano }}</div>
+    <div><strong>Pokrivenih OWASP kategorija:</strong> {{ owasp_pokrivenost | length }}</div>
+  </div>
+
+  <h2>Nalazi</h2>
+  <div class="wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Ozbiljnost</th><th>Ranjivost</th><th>URL</th><th>Parametar</th>
+        <th>Alati</th><th>OWASP</th><th>Opis</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in findings %}
+      <tr>
+        <td><span class="sev sev-{{ f.ozbiljnost }}">{{ f.ozbiljnost }}</span></td>
+        <td>{{ f.ranjivost }}{% if f.korelirano %} <span class="korel">✓ korelirano</span>{% endif %}</td>
+        <td><code>{{ f.url }}</code></td>
+        <td>{{ f.parametar if f.parametar else "—" }}</td>
+        <td>{% for a in (f.alati if f.alati else [f.alat]) %}<span class="badge">{{ a }}</span>{% endfor %}</td>
+        <td>{{ f.owasp_kategorija }}</td>
+        <td>{{ f.opis }}</td>
+      </tr>
+      {% endfor %}
+      {% if not findings %}
+      <tr><td colspan="7">Nema nalaza.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Statistika po alatu</h2>
+  <div class="wrap">
+  <table>
+    <thead><tr><th>Alat</th><th>Broj nalaza</th></tr></thead>
+    <tbody>
+      {% for alat, broj in po_alatu.items() %}
+      <tr><td>{{ alat }}</td><td>{{ broj }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Pokrivenost OWASP Top 10</h2>
+  <div class="wrap">
+  <table>
+    <thead><tr><th>OWASP kategorija</th><th>Broj nalaza</th></tr></thead>
+    <tbody>
+      {% for kat, broj in owasp_pokrivenost.items() %}
+      <tr><td>{{ kat }}</td><td>{{ broj }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</body>
+</html>

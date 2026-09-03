@@ -1,0 +1,32 @@
+target: http://localhost:8081
+output_dir: ./rezultati
+timeout_seconds: 600
+dvwa:
+  base_url: http://localhost:8081
+  username: admin
+  password: password
+  security_level: low
+tools:
+  zap:
+    enabled: true
+    api_url: http://127.0.0.1:8090
+    api_key: ""            # ZAP pokrenut s api.disablekey=true
+    spider: true
+    active_scan: true
+    timeout_seconds: 900
+  nuclei:
+    enabled: true
+    binary: nuclei
+    tags: [cve, misconfig, exposure, tech]
+    severity: [info, low, medium, high, critical]
+    timeout_seconds: 600
+  sqlmap:
+    enabled: true
+    binary: sqlmap
+    endpoints:
+      - /vulnerabilities/sqli/?id=1&Submit=Submit
+      - /vulnerabilities/sqli_blind/?id=1&Submit=Submit
+    technique: BEUST
+    level: 1
+    risk: 1
+    timeout_seconds: 600
