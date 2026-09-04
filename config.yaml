@@ -10,7 +10,7 @@ tools:
   zap:
     enabled: true
     api_url: http://127.0.0.1:8090
-    api_key: ""            # ZAP pokrenut s api.disablekey=true
+    api_key: ""
     spider: true
     active_scan: true
     timeout_seconds: 900

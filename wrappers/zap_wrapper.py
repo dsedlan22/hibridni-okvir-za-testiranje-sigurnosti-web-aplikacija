@@ -63,14 +63,9 @@ class ZapWrapper(BaseWrapper):
             return None
         log.info("ZAP daemon dostupan, verzija %s", version.get("version", "?"))
 
-        # Cist session svaki run - daemon inace pamti stablo stranica i alerte izmedu
-        # pokretanja skripte (napuhani brojevi, a stari logout/csvf cvorovi bi se opet skenirali).
         self._get("/JSON/core/action/newSession/", {"name": "okvir", "overwrite": "true"})
 
         if sid:
-            # Daemon pamti replacer pravila izmedu pokretanja skripte; ukloni staro pa dodaj
-            # svjeze - inace addRule vraca 400 na duplikat i ZAP zadrzi stari, mrtvi kolacic
-            # (sto aktivni sken ostavi neautenticiranim i bez injection nalaza).
             self._get("/JSON/replacer/action/removeRule/", {"description": "dvwa"})
             res = self._get(
                 "/JSON/replacer/action/addRule/",
@@ -91,9 +86,6 @@ class ZapWrapper(BaseWrapper):
         log.info("ZAP: ubacujem metu u stablo (%s)", target)
         self._get("/JSON/core/action/accessUrl/", {"url": target, "followRedirects": "true"})
 
-        # Izuzmi stranice koje mijenjaju stanje DVWA-e iz spidera: logout.php (odjavio bi ZAP
-        # usred skena) i csrf (aktivni sken bi promijenio admin lozinku i srusio prijavu
-        # svih alata koji slijede). Uz cist session ovi cvorovi tako nikad ne udu u stablo.
         for rx in (r".*logout\.php.*", r".*/vulnerabilities/csrf.*"):
             self._get("/JSON/spider/action/excludeFromScan/", {"regex": rx})
 

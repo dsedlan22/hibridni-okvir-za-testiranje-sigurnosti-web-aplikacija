@@ -6,7 +6,6 @@ from urllib.parse import urlsplit, urlunsplit
 from models.finding import Finding
 from utils.logger import get_logger
 
-# ozbiljnost order za max operaciju (4.5)
 OZBILJNOST_ORDER = {
     "informativno": 0,
     "nisko": 1,

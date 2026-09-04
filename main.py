@@ -64,21 +64,18 @@ def main() -> None:
     svi_nalazi: List[Finding] = []
     koristeni_alati: List[str] = []
 
-    # 4/5. ZAP
     zap_cfg = tools_cfg.get("zap", {})
     if zap_cfg.get("enabled"):
         koristeni_alati.append("OWASP ZAP")
         raw = ZapWrapper(zap_cfg).run(target, output_dir, sid=svjezi_sid())
         svi_nalazi += zap_parser.parse(raw)
 
-    # Nuclei
     nuclei_cfg = tools_cfg.get("nuclei", {})
     if nuclei_cfg.get("enabled"):
         koristeni_alati.append("Nuclei")
         raw = NucleiWrapper(nuclei_cfg).run(target, output_dir, sid=svjezi_sid())
         svi_nalazi += nuclei_parser.parse(raw)
 
-    # sqlmap
     sqlmap_cfg = tools_cfg.get("sqlmap", {})
     if sqlmap_cfg.get("enabled"):
         koristeni_alati.append("sqlmap")
@@ -89,18 +86,14 @@ def main() -> None:
     total_raw = len(svi_nalazi)
     log.info("Prikupljeno ukupno %d sirovih nalaza", total_raw)
 
-    # 7. normalizacija
     Normalizer().normalize(svi_nalazi)
 
-    # 8. deduplikacija + korelacija
     jedinstveni = Deduplicator().deduplicate(svi_nalazi)
 
-    # 9. izvjestaji
     elapsed = time.time() - start
     JSONReporter().generate(jedinstveni, output_dir, target, koristeni_alati, total_raw, elapsed)
     HTMLReporter().generate(jedinstveni, output_dir, target, koristeni_alati, total_raw, elapsed)
 
-    # 10. sazetak
     po_alatu = {}
     for f in jedinstveni:
         for a in f.alati:

@@ -5,7 +5,6 @@ from typing import List
 from models.finding import Finding
 from utils.logger import get_logger
 
-# 1. kanonizacija naziva ranjivosti (case-insensitive kljucevi)
 KANON_NAZIVI = {
     "cross site scripting (reflected)": "Reflected XSS",
     "cross site scripting (persistent)": "Stored XSS",
@@ -14,7 +13,6 @@ KANON_NAZIVI = {
     "sql injection": "SQL Injection",
 }
 
-# 2. OWASP Top 10 mapiranje (case-insensitive) - iz 4.6
 OWASP_MAPA = {
     "sql injection": "A03:2021 Injection",
     "sqli": "A03:2021 Injection",
@@ -37,21 +35,15 @@ OWASP_MAPA = {
     "ssrf": "A10:2021 Server-Side Request Forgery",
 }
 
-# 2b. Fallback mapiranje po kljucnoj rijeci (substring, case-insensitive) za obitelji
-# pasivnih nalaza koje alati (osobito ZAP) prijavljuju punim, promjenjivim nazivima.
-# Provjerava se tek nakon egzaktne tablice; prvi pogodak pobjeduje pa je redoslijed bitan.
 OWASP_KLJUCNE = [
-    # A01: Broken Access Control
     ("anti-csrf", "A01:2021 Broken Access Control"),
     ("csrf", "A01:2021 Broken Access Control"),
     ("path traversal", "A01:2021 Broken Access Control"),
     ("directory traversal", "A01:2021 Broken Access Control"),
-    # A02: Cryptographic Failures (izlaganje osjetljivih podataka)
     ("sensitive information", "A02:2021 Cryptographic Failures"),
     ("information disclosure", "A02:2021 Cryptographic Failures"),
     ("banner information", "A02:2021 Cryptographic Failures"),
     ("timestamp disclosure", "A02:2021 Cryptographic Failures"),
-    # A05: Security Misconfiguration
     ("version information", "A05:2021 Security Misconfiguration"),
     ("x-content-type-options", "A05:2021 Security Misconfiguration"),
     ("content security policy", "A05:2021 Security Misconfiguration"),
@@ -65,22 +57,17 @@ OWASP_KLJUCNE = [
     ("configuration files", "A05:2021 Security Misconfiguration"),
     ("gitignore", "A05:2021 Security Misconfiguration"),
     ("readme", "A05:2021 Security Misconfiguration"),
-    # A08: Software and Data Integrity Failures
     ("sub resource integrity", "A08:2021 Software and Data Integrity Failures"),
     ("cross-domain javascript", "A08:2021 Software and Data Integrity Failures"),
 ]
 
-# 3. prijevod ozbiljnosti na hrvatsku skalu (case-insensitive)
 OZBILJNOST_MAPA = {
-    # ZAP
     "high": "visoko",
     "medium": "srednje",
     "low": "nisko",
     "informational": "informativno",
-    # Nuclei
     "critical": "kritično",
     "info": "informativno",
-    # vec hrvatski (sqlmap i re-normalizacija)
     "kritično": "kritično",
     "visoko": "visoko",
     "srednje": "srednje",
@@ -97,9 +84,6 @@ class Normalizer:
         n = (naziv or "").strip().lower()
         if n in KANON_NAZIVI:
             return KANON_NAZIVI[n]
-        # Prefiks/substring pravila za varijante naziva istih alata (npr. ZAP prijavljuje
-        # SQLi po bazi: "SQL Injection - MySQL"). Bez ovoga se isti nalaz ne bi korelirao
-        # sa sqlmap-ovim "SQL Injection" niti mapirao na OWASP kategoriju.
         if n.startswith("sql injection"):
             return "SQL Injection"
         if "command injection" in n:

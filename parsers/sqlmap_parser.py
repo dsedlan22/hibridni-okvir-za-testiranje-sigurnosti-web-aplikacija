@@ -24,7 +24,6 @@ def parse(raw_path: Path, target_url: str) -> List[Finding]:
         return []
 
     findings: List[Finding] = []
-    # svaki blok pocinje s "Parameter:" i traje do sljedeceg "Parameter:" ili kraja
     matches = list(PARAM_RE.finditer(text))
     for idx, m in enumerate(matches):
         start = m.end()
